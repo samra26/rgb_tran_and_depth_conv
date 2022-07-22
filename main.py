@@ -1,6 +1,6 @@
 import argparse
 import os
-from dataset import get_loader,get_val_loader
+from dataset import get_loader
 from solver import Solver
 import time
 

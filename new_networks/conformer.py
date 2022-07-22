@@ -653,11 +653,10 @@ class JL_DCF(nn.Module):
 
         return sal_final,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att
 
-def build_model(network, base_model_cfg,patch_size, channel_ratio, embed_dim, depth,
-                      num_heads, mlp_ratio):
+def build_model(network='conformer', base_model_cfg='conformer'):
    
-        backbone= Conformer(patch_size, channel_ratio, embed_dim, depth,
-                      num_heads, mlp_ratio, qkv_bias=True)
+        backbone= Conformer(patch_size=16, channel_ratio=4, embed_dim=384, depth=12,
+                      num_heads=6, mlp_ratio=4, qkv_bias=True)
         
    
 

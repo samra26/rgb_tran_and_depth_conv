@@ -1,3 +1,5 @@
+Added sturcture_loss
+
 # convtran_with_sal_final_ver1
 python main.py --mode=test --sal_mode=SIP --test_root=../testsod/STERE/STERE --test_list=../testsod/STERE/STERE/test.lst --test_folder=./test/STERE --model=./checkpoints/demo-17/epoch_90.pth
 

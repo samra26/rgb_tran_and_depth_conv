@@ -131,9 +131,9 @@ class Solver(object):
                 
                 sal_final,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att = self.net(sal_depth,sal_image)
                 
-                sal_loss_coarse_rgb = structure_loss(coarse_sal_rgb, sal_label_coarse, reduction='sum')
-                sal_loss_coarse_depth = structure_loss(coarse_sal_depth, sal_label_coarse, reduction='sum')
-                sal_final_loss = structure_loss(sal_final, sal_label, reduction='sum')
+                sal_loss_coarse_rgb = structure_loss(coarse_sal_rgb, sal_label_coarse)
+                sal_loss_coarse_depth = structure_loss(coarse_sal_depth, sal_label_coarse)
+                sal_final_loss = structure_loss(sal_final, sal_label)
                 
                 sal_loss_fuse = sal_final_loss+ sal_loss_coarse_rgb/4 + sal_loss_coarse_depth/4
                 sal_loss = sal_loss_fuse / (self.iter_size * self.config.batch_size)

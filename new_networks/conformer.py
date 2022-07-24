@@ -522,7 +522,8 @@ class LDELayer(nn.Module):
         #print('fconv_c',fconv_c.shape)
         q[j]=self.GAP(q[j].permute(0,2,1,3))
         k[j]=self.GAP(k[j].permute(0,2,1,3))
-        v[j]=self.GAP(v[j].permute(0,2,1,3))
+        v[j]=v[j].permute(0,2,1,3).flatten(2)
+        print(q.shape,v.shape)
         depth_lde=fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j])
         rgb_lde=self.conv_rgb(list_x[j])
              

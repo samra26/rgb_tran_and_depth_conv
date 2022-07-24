@@ -495,14 +495,14 @@ class LDELayer(nn.Module):
         self.conv_c=nn.Sequential(nn.Conv2d(256,384,1,1),self.relu)
         self.conv_rgb=nn.Sequential(nn.MaxPool2d(3),nn.Conv2d(256, 64, 7, 1, 1), nn.Conv2d(64, 64, 5, 1, 1), self.relu)
         self.pool_avg = nn.AvgPool2d(kernel_size=4, stride=4)
-        self.softmax=nn.Softmax(dim=1)
-        self.GAP= nn.AdaptiveAvgPool2d()
+        self.softmax=nn.Sigmoid(dim=1)
+        
 
     def forward(self, list_x,list_y,q,k,v):
         #fconv_c=[]
         #fconv_d=[]
-        #rgb_lde=[]
-        #depth_lde=[]
+        rgb_lde=[]
+        depth_lde=[]
         
         '''for i in range(len(list_x)):
             rgb_conv = list_x[i][0]
@@ -520,8 +520,8 @@ class LDELayer(nn.Module):
         #print('fconv_c',fconv_c.shape)
         fconv_c=torch.cat([list_y[j][:, 0][:, None, :], fconv_c], dim=1)
         #print('fconv_c',fconv_c.shape)
-        q[j]=self.GAP(q[j].permute(0,2,1,3))
-        k[j]=self.GAP(k[j].permute(0,2,1,3))
+        q[j]=q[j].permute(0,2,1,3).flatten(2)
+        k[j]=k[j].permute(0,2,1,3).flatten(2)
         v[j]=v[j].permute(0,2,1,3).flatten(2)
         print(q[j].shape,v[j].shape)
         depth_lde=fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j])

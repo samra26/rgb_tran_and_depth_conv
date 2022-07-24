@@ -496,7 +496,7 @@ class LDELayer(nn.Module):
         self.conv_rgb=nn.Sequential(nn.MaxPool2d(3),nn.Conv2d(256, 64, 7, 1, 1), nn.Conv2d(64, 64, 5, 1, 1), self.relu)
         self.pool_avg = nn.AvgPool2d(kernel_size=4, stride=4)
         self.softmax=nn.Softmax(dim=1)
-        self.GAP= nn.AdaptiveAvgPool2d((401,384))
+        self.GAP= nn.AdaptiveAvgPool2d()
 
     def forward(self, list_x,list_y,q,k,v):
         #fconv_c=[]

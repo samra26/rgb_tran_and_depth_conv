@@ -618,6 +618,7 @@ class GDELayer(nn.Module):
         self.upsampling11= nn.ConvTranspose2d(k,k, kernel_size=4, stride=4 , padding=0)# 10x10 to 40x40
         self.upsampling12=nn.ConvTranspose2d(1,1, kernel_size=5, stride=8 , padding=0,output_padding=3) # 10x10 t0 80x80
         self.upsampling22= nn.ConvTranspose2d(384,k, kernel_size=4, stride=2 , padding=1) 
+        self.upsampling222= nn.ConvTranspose2d(384,1, kernel_size=4, stride=4 , padding=0)
         
 
     def forward(self, x, y,coarse_sal_rgb,coarse_sal_depth):
@@ -680,7 +681,7 @@ class GDELayer(nn.Module):
         coarse_sal_rgb1=self.upsampling12(coarse_sal_rgb)
         coarse_sal_depth1=self.upsampling12(coarse_sal_depth)
         y_r = depth_part[:, 1:].transpose(1, 2).unflatten(2,(20,20))
-        y_r=self.conv384(y_r)
+        y_r=self.upsampling222(y_r)
 
         salr=self.sigmoid(coarse_sal_rgb1)
         Ar=1-salr

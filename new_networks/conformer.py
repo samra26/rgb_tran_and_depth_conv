@@ -509,13 +509,12 @@ class LDELayer(nn.Module):
         rgb_lde=[]
         depth_lde=[]
         
-        '''for i in range(len(list_x)):
-            rgb_conv = list_x[i][0]
-            depth_conv = list_x[i][1]
-            rgb_tran = list_y[i][0]
-            depth_tran = list_y[i][1]
+        for i in range(len(list_x)):
+            rgb_conv = list_x[i]
+         
+            depth_tran = list_y[i]
             print("******LDE layer******")
-            print(i,"     ",rgb_conv.shape,rgb_tran.shape,depth_tran.shape)'''
+            print(i,"     ",rgb_conv.shape,depth_tran.shape)
         j=4
         fconv_c=self.conv_c(list_x[j])
         #print('fconv_c',fconv_c.shape)

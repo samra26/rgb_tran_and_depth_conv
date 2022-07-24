@@ -500,8 +500,8 @@ class LDELayer(nn.Module):
     def forward(self, list_x,list_y,q,k,v):
         #fconv_c=[]
         #fconv_d=[]
-        rgb_lde=[]
-        depth_lde=[]
+        #rgb_lde=[]
+        #depth_lde=[]
         
         '''for i in range(len(list_x)):
             rgb_conv = list_x[i][0]
@@ -510,22 +510,22 @@ class LDELayer(nn.Module):
             depth_tran = list_y[i][1]
             print("******LDE layer******")
             print(i,"     ",rgb_conv.shape,rgb_tran.shape,depth_tran.shape)'''
-        for j in range(2,5):
-            fconv_c=self.conv_c(list_x[j])
-            #print('fconv_c',fconv_c.shape)
-            fconv_c=self.pool_avg(fconv_c)
-            #print('fconv_c',fconv_c.shape)
-            fconv_c=fconv_c.flatten(2).transpose(1,2)
-            #print('fconv_c',fconv_c.shape)
-            fconv_c=torch.cat([list_y[j][:, 0][:, None, :], fconv_c], dim=1)
-            #print('fconv_c',fconv_c.shape)
-            q[j]=q[j].permute(0,2,1,3).flatten(2)
-            k[j]=k[j].permute(0,2,1,3).flatten(2)
-            v[j]=v[j].permute(0,2,1,3).flatten(2)
-            depth_lde.append(fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j]))
-            rgb_lde.append(self.conv_rgb(list_x[j]))
-        '''for i in range(len(rgb_lde)):        
-            print(i,'rgb_lde',rgb_lde[i].shape,depth_lde[i].shape)'''
+        j=4
+        fconv_c=self.conv_c(list_x[j])
+        #print('fconv_c',fconv_c.shape)
+        fconv_c=self.pool_avg(fconv_c)
+        #print('fconv_c',fconv_c.shape)
+        fconv_c=fconv_c.flatten(2).transpose(1,2)
+        #print('fconv_c',fconv_c.shape)
+        fconv_c=torch.cat([list_y[j][:, 0][:, None, :], fconv_c], dim=1)
+        #print('fconv_c',fconv_c.shape)
+        q[j]=q[j].permute(0,2,1,3).flatten(2)
+        k[j]=k[j].permute(0,2,1,3).flatten(2)
+        v[j]=v[j].permute(0,2,1,3).flatten(2)
+        depth_lde=fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j])
+        rgb_lde=self.conv_rgb(list_x[j])
+             
+        #print('rgb_lde',rgb_lde.shape,depth_lde.shape)
 
 
         return rgb_lde,depth_lde
@@ -567,7 +567,7 @@ class GDELayer(nn.Module):
         rgb_m=torch.zeros(coarse_sal_rgb.size(0),1,40,40).cuda()
         depth_h=torch.zeros(coarse_sal_rgb.size(0),1,20,20).cuda()
         depth_m=torch.zeros(coarse_sal_rgb.size(0),1,40,40).cuda()
-        for j in range(11,4,-1):
+        for j in range(11,7,-3):
             rgb_part=x[j]
             depth_part=y[j]
             B, _, C = depth_part.shape
@@ -622,9 +622,9 @@ class Decoder(nn.Module):
     def forward(self, lde_c,lde_t,rgb_h,rgb_m,depth_h,depth_m):
         sal_high=rgb_h+depth_h
         sal_med=rgb_m+depth_m
-        rgb_l=self.upsample((lde_c[0]+lde_c[1]+lde_c[2]))
-        d=lde_t[0][:, 1:].transpose(1, 2).unflatten(2,(20,20))+lde_t[1][:, 1:].transpose(1, 2).unflatten(2,(20,20))+lde_t[2][:, 1:].transpose(1, 2).unflatten(2,(20,20))
-        depth_l=self.upsample1(lde_t[0][:, 1:].transpose(1, 2).unflatten(2,(20,20)))
+        rgb_l=self.upsample(lde_c)
+        d=lde_t[:, 1:].transpose(1, 2).unflatten(2,(20,20))
+        depth_l=self.upsample1(lde_t[:, 1:].transpose(1, 2).unflatten(2,(20,20)))
         sal_low=rgb_l+depth_l
         sal_final=self.up2(self.up2(sal_low+self.up2((sal_med+(self.up2(sal_high))))))
         #print(sal_high.shape,sal_med.shape,sal_low.shape, sal_final.shape)

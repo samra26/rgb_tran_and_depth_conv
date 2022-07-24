@@ -493,6 +493,8 @@ class LDELayer(nn.Module):
         super(LDELayer, self).__init__()
         self.relu = nn.ReLU()
         self.conv_c=nn.Sequential(nn.Conv2d(256,384,1,1),self.relu)
+        self.conv_c1=nn.Sequential(nn.Conv2d(512,384,1,1),self.relu)
+        self.conv_c2=nn.Sequential(nn.Conv2d(1024,384,1,1),self.relu)
         self.conv_rgb=nn.Sequential(nn.MaxPool2d(3),nn.Conv2d(256, 64, 7, 1, 1), nn.Conv2d(64, 64, 5, 1, 1), self.relu)
         self.pool_avg = nn.AvgPool2d(kernel_size=4, stride=4)
         self.softmax=nn.Softmax(dim=1)
@@ -528,14 +530,14 @@ class LDELayer(nn.Module):
         rgb_lde.append(self.conv_rgb(list_x[j]))
         
         j=8
-        fconv_c=self.conv_c(list_x[j])
-        #print('fconv_c',fconv_c.shape)
+        fconv_c=self.conv_c1(list_x[j])
+        print('fconv_c',fconv_c.shape)
         fconv_c=self.pool_avg(fconv_c)
-        #print('fconv_c',fconv_c.shape)
+        print('fconv_c',fconv_c.shape)
         fconv_c=fconv_c.flatten(2).transpose(1,2)
-        #print('fconv_c',fconv_c.shape)
+        print('fconv_c',fconv_c.shape)
         fconv_c=torch.cat([list_y[j][:, 0][:, None, :], fconv_c], dim=1)
-        #print('fconv_c',fconv_c.shape)
+        print('fconv_c',fconv_c.shape)
         q[j]=q[j].permute(0,2,1,3).flatten(2)
         k[j]=k[j].permute(0,2,1,3).flatten(2)
         v[j]=v[j].permute(0,2,1,3).flatten(2)
@@ -544,7 +546,7 @@ class LDELayer(nn.Module):
         rgb_lde.append(self.conv_rgb(list_x[j]))
         
         j=11
-        fconv_c=self.conv_c(list_x[j])
+        fconv_c=self.conv_c2(list_x[j])
         #print('fconv_c',fconv_c.shape)
         fconv_c=self.pool_avg(fconv_c)
         #print('fconv_c',fconv_c.shape)
@@ -560,7 +562,7 @@ class LDELayer(nn.Module):
         rgb_lde.append(self.conv_rgb(list_x[j]))
         
         j=12
-        fconv_c=self.conv_c(list_x[j])
+        fconv_c=self.conv_c2(list_x[j])
         #print('fconv_c',fconv_c.shape)
         fconv_c=self.pool_avg(fconv_c)
         #print('fconv_c',fconv_c.shape)

@@ -497,7 +497,7 @@ class LDELayer(nn.Module):
         self.conv_c2=nn.Sequential(nn.Conv2d(1024,384,1,1),self.relu)
         self.conv_rgb=nn.Sequential(nn.MaxPool2d(3),nn.Conv2d(256, 64, 7, 1, 1), nn.Conv2d(64, 64, 5, 1, 1), self.relu)
         self.conv_rgb1=nn.Sequential(nn.MaxPool2d(2),nn.Conv2d(512, 64, 5, 1, 1), nn.Conv2d(64, 64,3, 1, 2), self.relu)
-        self.conv_rgb2=nn.Sequential(nn.MaxPool2d(1),nn.Conv2d(1024, 64, 5, 1, 1), nn.Conv2d(64, 64,3, 1, 1), self.relu)
+        self.conv_rgb2=nn.Sequential(nn.MaxPool2d(1),nn.Conv2d(1024, 64, 3, 1, 1), nn.Conv2d(64, 64,1, 1, 1), self.relu)
         self.pool_avg = nn.AvgPool2d(kernel_size=4, stride=4)
         self.pool_avg1 = nn.AvgPool2d(kernel_size=2, stride=2)
         self.softmax=nn.Softmax(dim=1)
@@ -509,12 +509,12 @@ class LDELayer(nn.Module):
         rgb_lde=[]
         depth_lde=[]
         
-        for i in range(len(list_x)):
+        '''for i in range(len(list_x)):
             rgb_conv = list_x[i]
          
             depth_tran = list_y[i]
             print("******LDE layer******")
-            print(i,"     ",rgb_conv.shape,depth_tran.shape)
+            print(i,"     ",rgb_conv.shape,depth_tran.shape)'''
         j=4
         fconv_c=self.conv_c(list_x[j])
         #print('fconv_c',fconv_c.shape)
@@ -533,17 +533,17 @@ class LDELayer(nn.Module):
         
         j=8
         fconv_c=self.conv_c1(list_x[j])
-        print('fconv_c',fconv_c.shape)
+        #print('fconv_c',fconv_c.shape)
         fconv_c=self.pool_avg1(fconv_c)
-        print('fconv_c',fconv_c.shape)
+        #print('fconv_c',fconv_c.shape)
         fconv_c=fconv_c.flatten(2).transpose(1,2)
-        print('fconv_c',fconv_c.shape)
+        #print('fconv_c',fconv_c.shape)
         fconv_c=torch.cat([list_y[j][:, 0][:, None, :], fconv_c], dim=1)
-        print('fconv_c',fconv_c.shape)
+        #print('fconv_c',fconv_c.shape)
         q[j]=q[j].permute(0,2,1,3).flatten(2)
         k[j]=k[j].permute(0,2,1,3).flatten(2)
         v[j]=v[j].permute(0,2,1,3).flatten(2)
-        print(q[j].shape,v[j].shape)
+        #print(q[j].shape,v[j].shape)
         depth_lde.append(fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j]))
         rgb_lde.append(self.conv_rgb1(list_x[j]))
         
@@ -707,6 +707,7 @@ class Decoder(nn.Module):
         sal_high=rgb_h+depth_h
         sal_med=rgb_m+depth_m
         sal_low=rgb_l+depth_l
+       
         '''rgb_l=self.upsample(lde_c)
         d=lde_t[:, 1:].transpose(1, 2).unflatten(2,(20,20))
         depth_l=self.upsample1(lde_t[:, 1:].transpose(1, 2).unflatten(2,(20,20)))'''
@@ -714,7 +715,7 @@ class Decoder(nn.Module):
             print(lde_c[i].shape,lde_t[i].shape)
         
         sal_final=self.up2(self.up2(sal_low+self.up2((sal_med+(self.up2(sal_high))))))
-        #print(sal_high.shape,sal_med.shape,sal_low.shape, sal_final.shape)
+        print(sal_high.shape,sal_med.shape,sal_low.shape, sal_final.shape)
 
         return sal_final,sal_low,sal_med,sal_high
 

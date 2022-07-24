@@ -497,6 +497,7 @@ class LDELayer(nn.Module):
         self.conv_c2=nn.Sequential(nn.Conv2d(1024,384,1,1),self.relu)
         self.conv_rgb=nn.Sequential(nn.MaxPool2d(3),nn.Conv2d(256, 64, 7, 1, 1), nn.Conv2d(64, 64, 5, 1, 1), self.relu)
         self.pool_avg = nn.AvgPool2d(kernel_size=4, stride=4)
+        self.pool_avg1 = nn.AvgPool2d(kernel_size=2, stride=2)
         self.softmax=nn.Softmax(dim=1)
         
 
@@ -532,7 +533,7 @@ class LDELayer(nn.Module):
         j=8
         fconv_c=self.conv_c1(list_x[j])
         print('fconv_c',fconv_c.shape)
-        fconv_c=self.pool_avg(fconv_c)
+        fconv_c=self.pool_avg1(fconv_c)
         print('fconv_c',fconv_c.shape)
         fconv_c=fconv_c.flatten(2).transpose(1,2)
         print('fconv_c',fconv_c.shape)
@@ -548,7 +549,7 @@ class LDELayer(nn.Module):
         j=11
         fconv_c=self.conv_c2(list_x[j])
         #print('fconv_c',fconv_c.shape)
-        fconv_c=self.pool_avg(fconv_c)
+        #fconv_c=self.pool_avg(fconv_c)
         #print('fconv_c',fconv_c.shape)
         fconv_c=fconv_c.flatten(2).transpose(1,2)
         #print('fconv_c',fconv_c.shape)
@@ -561,10 +562,10 @@ class LDELayer(nn.Module):
         depth_lde.append(fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j]))
         rgb_lde.append(self.conv_rgb(list_x[j]))
         
-        j=12
+        '''j=12
         fconv_c=self.conv_c2(list_x[j])
         #print('fconv_c',fconv_c.shape)
-        fconv_c=self.pool_avg(fconv_c)
+        #fconv_c=self.pool_avg(fconv_c)
         #print('fconv_c',fconv_c.shape)
         fconv_c=fconv_c.flatten(2).transpose(1,2)
         #print('fconv_c',fconv_c.shape)
@@ -575,7 +576,7 @@ class LDELayer(nn.Module):
         v[j]=v[j].permute(0,2,1,3).flatten(2)
         print(q[j].shape,v[j].shape)
         depth_lde.append(fconv_c*(self.softmax((q[j]*list_y[j])*k[j])*v[j]))
-        rgb_lde.append(self.conv_rgb(list_x[j]))
+        rgb_lde.append(self.conv_rgb(list_x[j]))'''
              
         
 

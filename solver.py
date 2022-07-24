@@ -92,7 +92,7 @@ class Solver(object):
                     depth = depth.to(device)
 
                 #input = torch.cat((images, depth), dim=0)
-                preds,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att = self.net(depth,images)
+                preds,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att = self.net(images,depth)
                 #print(preds.shape)
                 preds = F.interpolate(preds, tuple(im_size), mode='bilinear', align_corners=True)
                 pred = np.squeeze(torch.sigmoid(preds)).cpu().data.numpy()
@@ -129,22 +129,22 @@ class Solver(object):
                 self.optimizer.zero_grad()
                 sal_label_coarse = F.interpolate(sal_label, size_coarse, mode='bilinear', align_corners=True)
                 
-                sal_final,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att = self.net(sal_depth,sal_image)
+                sal_final,sal_low,sal_med,sal_high,coarse_sal_rgb,coarse_sal_depth,Att = self.net(sal_image,sal_depth,)
                 
                 sal_loss_coarse_rgb = structure_loss(coarse_sal_rgb, sal_label_coarse)
                 sal_loss_coarse_depth = structure_loss(coarse_sal_depth, sal_label_coarse)
                 sal_final_loss = structure_loss(sal_final, sal_label)
                 
-                sal_loss_fuse = sal_final_loss+ sal_loss_coarse_rgb/4 + sal_loss_coarse_depth/4
-                sal_loss = sal_loss_fuse / (self.iter_size * self.config.batch_size)
+                sal_loss_fuse = sal_final_loss
+                sal_loss = sal_loss_fuse
                 r_sal_loss += sal_loss.data
                 r_sal_loss_item+=sal_loss.item() * sal_image.size(0)
                 sal_loss.backward()
                 self.optimizer.step()
 
                 if (i + 1) % (self.show_every // self.config.batch_size) == 0:
-                    print('epoch: [%2d/%2d], iter: [%5d/%5d]  ||  Sal : %10.4f ' % (
-                        epoch, self.config.epoch, i + 1, iter_num, r_sal_loss / (self.show_every / self.iter_size)))
+                    print('epoch: [%2d/%2d], iter: [%5d/%5d]  ||  Sal : %0.4f ' % (
+                        epoch, self.config.epoch, i + 1, iter_num, r_sal_loss ))
                     # print('Learning rate: ' + str(self.lr))
                     writer.add_scalar('training loss', r_sal_loss / (self.show_every / self.iter_size),
                                       epoch * len(self.train_loader.dataset) + i)
